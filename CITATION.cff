@@ -38,11 +38,11 @@ authors:
     given-names: Martín
 identifiers:
   - type: doi
-    value: 10.5281/zenodo.8105939
+    value: 10.5281/zenodo.8377210
 repository-code: 'https://github.com/Stellarium/stellarium'
 url: 'https://stellarium.org/'
 repository-artifact: >-
-  https://github.com/Stellarium/stellarium/releases/tag/v24.1
+  https://github.com/Stellarium/stellarium/releases/tag/v24.2
 abstract: >-
   Stellarium is a free open source planetarium for your
   computer. It shows a realistic sky in 3D, just like what
@@ -54,6 +54,6 @@ keywords:
   - universe
   - sky
 license: GPL-2.0-or-later
-commit: 9d9bc31da89ae28f51c93df2ce54f15f6e1ef150
-version: '24.1'
-date-released: '2024-03-25'
+commit: a4e4a7416ebd411658ac4e284cde17deacaf8b82
+version: '24.2'
+date-released: '2024-06-23'

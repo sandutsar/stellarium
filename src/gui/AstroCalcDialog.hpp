@@ -35,6 +35,7 @@
 #include <QMutex>
 #include <QtCharts/qchartview.h>
 
+#include "SolarEclipseComputer.hpp"
 #include "AstroCalcChart.hpp"
 #include "StelDialog.hpp"
 #include "StelCore.hpp"
@@ -78,82 +79,10 @@ class AstroCalcDialog : public StelDialog
 {
 	Q_OBJECT
 
-	struct EclipseMapData
-	{
-		enum class EclipseType
-		{
-			Undefined,
-			Total,
-			Annular,
-			Hybrid,
-		};
-		struct GeoPoint
-		{
-			double longitude;
-			double latitude;
-
-			GeoPoint() = default;
-			GeoPoint(double lon, double lat)
-				: longitude(lon), latitude(lat)
-			{
-			}
-		};
-		struct GeoTimePoint
-		{
-			double JD = -1;
-			double longitude;
-			double latitude;
-
-			GeoTimePoint() = default;
-			GeoTimePoint(double JD, double lon, double lat)
-				: JD(JD), longitude(lon), latitude(lat)
-			{
-			}
-		};
-		struct UmbraLimit
-		{
-			std::vector<GeoPoint> curve;
-			EclipseType eclipseType = EclipseType::Undefined;
-		};
-		struct UmbraOutline
-		{
-			std::vector<GeoPoint> curve;
-			double JD;
-			EclipseType eclipseType = EclipseType::Undefined;
-		};
-		GeoTimePoint greatestEclipse;
-		GeoTimePoint firstContactWithEarth; // AKA P1
-		GeoTimePoint lastContactWithEarth;  // AKA P4
-		GeoTimePoint centralEclipseStart;   // AKA C1
-		GeoTimePoint centralEclipseEnd;     // AKA C2
-
-		// The array elements are {northLimit, southLimit}
-		std::deque<GeoTimePoint> penumbraLimits[2];
-
-		// The curves in arrays are split into two lines by the computation algorithm
-		struct TwoLimits
-		{
-			std::vector<GeoPoint> p12curve;
-			std::vector<GeoPoint> p34curve;
-		};
-		struct SingleLimit
-		{
-			std::vector<GeoPoint> curve;
-		};
-		std::variant<SingleLimit,TwoLimits> riseSetLimits[2];
-
-		// These curves appear to be split generally in multiple sections
-		std::vector<std::deque<GeoTimePoint>> maxEclipseAtRiseSet;
-
-		std::vector<GeoPoint> centerLine;
-		std::vector<UmbraOutline> umbraOutlines;
-		std::vector<UmbraLimit> extremeUmbraLimit1;
-		std::vector<UmbraLimit> extremeUmbraLimit2;
-
-		EclipseType eclipseType;
-	};
-
 public:
+	using EclipseMapData = SolarEclipseComputer::EclipseMapData;
+	using GeoPoint = SolarEclipseComputer::GeoPoint;
+
 	//! Defines the number and the order of the columns in the table that lists celestial bodies positions
 	//! @enum CPositionsColumns
 	enum CPositionsColumns {
@@ -518,45 +447,36 @@ private slots:
 	void saveGraph(QChartView *graph);
 
 private:
-	struct GeoPoint
-	{
-		double latitude;
-		double longitude;
-		GeoPoint() = default;
-		GeoPoint(double latitude, double longitude)
-			: latitude(latitude), longitude(longitude)
-		{
-		}
-	};
-	class AstroCalcExtraEphemerisDialog* extraEphemerisDialog;
-	class AstroCalcCustomStepsDialog* customStepsDialog;
-	class StelCore* core;
-	class SolarSystem* solarSystem;
-	class NebulaMgr* dsoMgr;
-	class StarMgr* starMgr;
-	class StelObjectMgr* objectMgr;
-	class StelLocaleMgr* localeMgr;
-	class StelMovementMgr* mvMgr;
-	class StelPropertyMgr* propMgr;
-	//QStringListModel* wutModel;
-	//QSortFilterProxyModel *proxyModel;
-	AstroCalcChart *altVsTimeChart;
+	class AstroCalcExtraEphemerisDialog* extraEphemerisDialog = nullptr;
+	class AstroCalcCustomStepsDialog* customStepsDialog = nullptr;
+	class StelCore* core = nullptr;
+	class SolarSystem* solarSystem = nullptr;
+	class NebulaMgr* dsoMgr = nullptr;
+	class StarMgr* starMgr = nullptr;
+	class StelObjectMgr* objectMgr = nullptr;
+	class StelLocaleMgr* localeMgr = nullptr;
+	class StelMovementMgr* mvMgr = nullptr;
+	class StelPropertyMgr* propMgr = nullptr;
+	//QStringListModel* wutModel = nulpltr;
+	//QSortFilterProxyModel *proxyModel = nullptr;
+	AstroCalcChart *altVsTimeChart = nullptr;
 	mutable QMutex altVsTimeChartMutex;
-	AstroCalcChart *azVsTimeChart;
+	AstroCalcChart *azVsTimeChart = nullptr;
 	mutable QMutex azVsTimeChartMutex;
-	AstroCalcChart *monthlyElevationChart;
+	AstroCalcChart *monthlyElevationChart = nullptr;
 	mutable QMutex monthlyElevationChartMutex;
-	AstroCalcChart *curvesChart;
+	AstroCalcChart *curvesChart = nullptr;
 	mutable QMutex curvesChartMutex;
-	AstroCalcChart *lunarElongationChart;
+	AstroCalcChart *lunarElongationChart = nullptr;
 	mutable QMutex lunarElongationChartMutex;
-	AstroCalcChart *pcChart;
+	AstroCalcChart *pcChart = nullptr;
 	mutable QMutex pcChartMutex;
 
 	QSettings* conf;
-	QTimer *currentTimeLine;
-	QHash<QString,int> wutCategories;
+	QTimer *currentTimeLine = nullptr;
+	QHash<QString,int> wutCategories;	
 	QList<HECPosition> hecObjects;
+	SolarEclipseComputer ecliptor;
 
 	void saveTableAsCSV(const QString& fileName, QTreeWidget* tWidget, QStringList& headers);
 	void saveTableAsXLSX(const QString& fileName, QTreeWidget* tWidget, QStringList& headers, const QString& title, const QString& sheetName, const QString &note = "");
@@ -612,24 +532,6 @@ private:
 	void initListSolarEclipse();
 	//! Init header and list of solar eclipse contact
 	void initListSolarEclipseContact();
-	//! Iteration to calculate minimum distance from Besselian elements
-	double getJDofMinimumDistance(double JD);
-	//! Iteration to calculate JD of solar eclipse contacts
-	double getJDofContact(double JD, bool beginning, bool penumbral, bool external, bool outerContact);
-	//! Iteration to calculate contact times of solar eclipse
-	double getDeltaTimeOfContact(double JD, bool beginning, bool penumbra, bool external, bool outerContact);
-	//! Geographic coordinates where solar eclipse begins/ends at sunrise/sunset
-	GeoPoint getRiseSetLineCoordinates(bool first, double x, double y, double d, double L, double mu);
-	//! Geographic coordinates where maximum solar eclipse occurs at sunrise/sunset
-	GeoPoint getMaximumEclipseAtRiseSet(bool first, double JD);
-	//! Geographic coordinates of shadow outline
-	GeoPoint getShadowOutlineCoordinates(double angle, double x, double y, double d, double L, double tf,double mu);
-	//! Geographic coordinates of northern and southern limit of shadow
-	GeoPoint getNSLimitOfShadow(double JD, bool northernLimit, bool penumbra);
-	//! Geographic coordinates of extreme northern and southern limits of shadow
-	GeoPoint getExtremeNSLimitOfShadow(double JD, bool northernLimit, bool penumbra, bool begin);
-	//! Geographic coordinates of extreme contact
-	GeoPoint getContactCoordinates(double x, double y, double d, double mu);
 	//! Init header and list of local solar eclipse
 	void initListSolarEclipseLocal();
 	//! Init header and list of transit
@@ -657,6 +559,8 @@ private:
 	void adjustHECPositionsColumns();
 	void adjustWUTColumns();
 	void adjustPhenomenaColumns();
+
+	QString getWUTObjectType();
 
 	void enableEphemerisButtons(bool enable);
 	void enableRTSButtons(bool enable);
@@ -729,8 +633,18 @@ private:
 	bool isSecondObjectRight(double JD, PlanetP object1, StelObjectP object2);
 
 	// Signal that a plot has to be redone
-	bool plotAltVsTime, plotAltVsTimeSun, plotAltVsTimeMoon, plotAltVsTimePositive, plotMonthlyElevation, plotMonthlyElevationPositive, plotDistanceGraph, plotLunarElongationGraph, plotAziVsTime, computeRTS;
-	int altVsTimePositiveLimit, monthlyElevationPositiveLimit, graphsDuration, graphsStep;
+	bool plotAltVsTime = false;
+	bool plotAltVsTimeSun = false;
+	bool plotAltVsTimeMoon = false;
+	bool plotAltVsTimePositive = false;
+	bool plotMonthlyElevation = false;
+	bool plotMonthlyElevationPositive = false;
+	bool plotDistanceGraph = false;
+	bool plotLunarElongationGraph = false;
+	bool plotAziVsTime = false;
+	bool computeRTS = false;
+	bool computeEphemeris = false;
+	int altVsTimePositiveLimit = 0, monthlyElevationPositiveLimit = 0, graphsDuration = 1, graphsStep = 24;
 	QStringList ephemerisHeader, phenomenaHeader, positionsHeader, hecPositionsHeader, wutHeader, rtsHeader, lunareclipseHeader, lunareclipsecontactsHeader, solareclipseHeader, solareclipsecontactsHeader, solareclipselocalHeader, transitHeader;
 	static double brightLimit;
 	static const QString dash, delimiter;
@@ -739,97 +653,93 @@ private:
 	//! @todo Limit the width to the width of the screen *available to the window*.
 	void updateTabBarListWidgetWidth();
 
-	EclipseMapData generateEclipseMap(double JDMid);
-	void generateKML(const EclipseMapData& data, const QString& dateString, QTextStream& stream) const;
-	void generatePNGMap(const EclipseMapData& data, const QString& filePath) const;
-
 	void enableAngularLimits(bool enable);
 
 	QString getSelectedObjectNameI18n(StelObjectP selectedObject);
 
 	//! Memorize day for detecting rollover to next/prev one
-	int oldGraphJD;
+	int oldGraphJD = 0;
 
 	//! Remember to redraw active plot when dialog becomes visible
-	bool graphPlotNeedsRefresh;
+	bool graphPlotNeedsRefresh = false;
 
 	enum PhenomenaCategory {
-		PHCLatestSelectedObject     = -1,
-		PHCSolarSystem              =  0,
-		PHCPlanets                  =  1,
-		PHCAsteroids                =  2,
-		PHCPlutinos                 =  3,
-		PHCComets                   =  4,
-		PHCDwarfPlanets             =  5,
-		PHCCubewanos                =  6,
-		PHCScatteredDiscObjects     =  7,
-		PHCOortCloudObjects         =  8,
-		PHCSednoids                 =  9,
-		PHCBrightStars              = 10,
-		PHCBrightDoubleStars        = 11,
-		PHCBrightVariableStars      = 12,
-		PHCBrightStarClusters       = 13,
-		PHCPlanetaryNebulae         = 14,
-		PHCBrightNebulae            = 15,
-		PHCDarkNebulae              = 16,
-		PHCBrightGalaxies           = 17,
-		PHCSymbioticStars           = 18,
-		PHCEmissionLineStars        = 19,
-		PHCInterstellarObjects      = 20,
-		PHCPlanetsSun               = 21,
-		PHCSunPlanetsMoons          = 22,
-		PHCBrightSolarSystemObjects = 23,
-		PHCSolarSystemMinorBodies   = 24,
-		PHCMoonsFirstBody           = 25,
-		PHCBrightCarbonStars        = 26,
-		PHCBrightBariumStars        = 27,
-		PHCSunPlanetsTheirMoons     = 28,
+		PHCLatestSelectedObject		=  -1,
+		PHCSolarSystem					=   0,
+		PHCPlanets						=   1,
+		PHCAsteroids					=   2,
+		PHCPlutinos						=   3,
+		PHCComets						=   4,
+		PHCDwarfPlanets				=   5,
+		PHCCubewanos					=   6,
+		PHCScatteredDiscObjects		=   7,
+		PHCOortCloudObjects			=   8,
+		PHCSednoids					=   9,
+		PHCBrightStars					= 10,
+		PHCBrightDoubleStars			= 11,
+		PHCBrightVariableStars			= 12,
+		PHCBrightStarClusters			= 13,
+		PHCPlanetaryNebulae			= 14,
+		PHCBrightNebulae				= 15,
+		PHCDarkNebulae				= 16,
+		PHCBrightGalaxies				= 17,
+		PHCSymbioticStars				= 18,
+		PHCEmissionLineStars			= 19,
+		PHCInterstellarObjects			= 20,
+		PHCPlanetsSun					= 21,
+		PHCSunPlanetsMoons			= 22,
+		PHCBrightSolarSystemObjects	= 23,
+		PHCSolarSystemMinorBodies		= 24,
+		PHCMoonsFirstBody				= 25,
+		PHCBrightCarbonStars			= 26,
+		PHCBrightBariumStars			= 27,
+		PHCSunPlanetsTheirMoons		= 28,
 		PHCNone	// stop gapper for syntax reasons
 	};
 
 	enum WUTCategory {
-		EWPlanets                            =  0,
-		EWBrightStars                        =  1,
-		EWBrightNebulae                      =  2,
-		EWDarkNebulae                        =  3,
-		EWGalaxies                           =  4,
-		EWOpenStarClusters                   =  5,
-		EWAsteroids                          =  6,
-		EWComets                             =  7,
-		EWPlutinos                           =  8,
-		EWDwarfPlanets                       =  9,
-		EWCubewanos                          = 10,
-		EWScatteredDiscObjects               = 11,
-		EWOortCloudObjects                   = 12,
-		EWSednoids                           = 13,
-		EWPlanetaryNebulae                   = 14,
-		EWBrightDoubleStars                  = 15,
-		EWBrightVariableStars                = 16,
-		EWBrightStarsWithHighProperMotion    = 17,
-		EWSymbioticStars                     = 18,
-		EWEmissionLineStars                  = 19,
-		EWSupernovaeCandidates               = 20,
-		EWSupernovaeRemnantCandidates        = 21,
-		EWSupernovaeRemnants                 = 22,
-		EWClustersOfGalaxies                 = 23,
-		EWInterstellarObjects                = 24,
-		EWGlobularStarClusters               = 25,
-		EWRegionsOfTheSky                    = 26,
-		EWActiveGalaxies                     = 27,
-		EWPulsars                            = 28,
-		EWExoplanetarySystems                = 29,
-		EWBrightNovaStars                    = 30,
-		EWBrightSupernovaStars               = 31,
-		EWInteractingGalaxies                = 32,
-		EWDeepSkyObjects                     = 33,
-		EWMessierObjects                     = 34,
-		EWNGCICObjects                       = 35,
-		EWCaldwellObjects                    = 36,
-		EWHerschel400Objects                 = 37,
-		EWAlgolTypeVariableStars             = 38, // http://www.sai.msu.su/gcvs/gcvs/vartype.htm
-		EWClassicalCepheidsTypeVariableStars = 39, // http://www.sai.msu.su/gcvs/gcvs/vartype.htm
-		EWCarbonStars                        = 40,
-		EWBariumStars                        = 41,
+		EWPlanets								=   0,
+		EWBrightStars							=   1,
+		EWBrightNebulae						=   2,
+		EWDarkNebulae							=   3,
+		EWGalaxies								=   4,
+		EWOpenStarClusters					=   5,
+		EWAsteroids								=   6,
+		EWComets								=   7,
+		EWPlutinos								=   8,
+		EWDwarfPlanets							=   9,
+		EWCubewanos							= 10,
+		EWScatteredDiscObjects					= 11,
+		EWOortCloudObjects					= 12,
+		EWSednoids								= 13,
+		EWPlanetaryNebulae					= 14,
+		EWBrightDoubleStars					= 15,
+		EWBrightVariableStars					= 16,
+		EWBrightStarsWithHighProperMotion		= 17,
+		EWSymbioticStars						= 18,
+		EWEmissionLineStars					= 19,
+		EWSupernovaeCandidates				= 20,
+		EWSupernovaeRemnantCandidates		= 21,
+		EWSupernovaeRemnants					= 22,
+		EWClustersOfGalaxies					= 23,
+		EWInterstellarObjects					= 24,
+		EWGlobularStarClusters					= 25,
+		EWRegionsOfTheSky						= 26,
+		EWActiveGalaxies						= 27,
+		EWPulsars								= 28,
+		EWExoplanetarySystems					= 29,
+		EWBrightNovaStars						= 30,
+		EWBrightSupernovaStars				= 31,
+		EWInteractingGalaxies					= 32,
+		EWDeepSkyObjects						= 33,
+		EWMessierObjects						= 34,
+		EWNGCICObjects						= 35,
+		EWCaldwellObjects						= 36,
+		EWHerschel400Objects					= 37,
+		EWAlgolTypeVariableStars				= 38, // http://www.sai.msu.su/gcvs/gcvs/vartype.htm
+		EWClassicalCepheidsTypeVariableStars	= 39, // http://www.sai.msu.su/gcvs/gcvs/vartype.htm
+		EWCarbonStars							= 40,
+		EWBariumStars							= 41,
 		EWNone	// stop gapper for syntax reasons
 	};
 };
@@ -936,13 +846,18 @@ private:
 		{
 			return data(column, Qt::UserRole).toFloat() < other.data(column, Qt::UserRole).toFloat();
 		}
-		else if (column == AstroCalcDialog::EphemerisRA || column == AstroCalcDialog::EphemerisDec)
+		else if (column == AstroCalcDialog::EphemerisRA || column == AstroCalcDialog::EphemerisDec || column == AstroCalcDialog::EphemerisElongation)
 		{
 			return StelUtils::getDecAngle(text(column)) < StelUtils::getDecAngle(other.text(column));
 		}
 		else if (column == AstroCalcDialog::EphemerisMagnitude || column == AstroCalcDialog::EphemerisDistance)
 		{
 			return text(column).toFloat() < other.text(column).toFloat();
+		}
+		else if (column == AstroCalcDialog::EphemerisPhase)
+		{
+			// a bit hackish sorting rule as a quick solution for sorting percentages
+			return text(column).replace("%","").toFloat() < other.text(column).replace("%","").toFloat();
 		}
 		else
 		{
@@ -1090,22 +1005,6 @@ private:
 		}
 	}
 };
-
-struct EclipseBesselParameters
-{
-	double xdot;  //!< rate of change of X in Earth radii per second
-	double ydot;  //!< rate of change of Y in Earth radii per second
-	double ddot;  //!< rate of change of d in radians per second
-	double mudot; //!< rate of change of mu in radians per second
-	double ldot;  //!< rate of change of L1 (for penumbra) or L2 (for umbra) in Earth radii per second
-	double etadot;
-	double bdot;
-	double cdot;
-	EclipseBesselElements elems;
-};
-
-// Compute parameters from Besselian elements
-EclipseBesselParameters calcBesselParameters(bool penumbra);
 
 //! Derived from QTreeWidgetItem class with customized sort
 class ACSolarEclipseLocalTreeWidgetItem : public QTreeWidgetItem

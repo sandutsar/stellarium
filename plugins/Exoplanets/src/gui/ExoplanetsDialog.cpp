@@ -213,7 +213,17 @@ void ExoplanetsDialog::fillExoplanetsTable()
 		for (auto &eps : map["exoplanets"].toList())
 		{
 			auto epdata = eps.toMap();
-			QString dm = epdata.contains("detectionMethod") ? epdata["detectionMethod"].toString().trimmed() : dash;
+			QString dm = dash;
+			if ( epdata.contains("detectionMethod"))
+			{
+				QStringList dmlist = epdata["detectionMethod"].toString().trimmed().split(",");
+				QStringList dmloc;
+				for (int i=0;i<dmlist.count();i++)
+				{
+					dmloc << qc_(dmlist.at(i).trimmed(), "Exoplanet detection method");
+				}
+				dm = dmloc.join(", ");
+			}
 			EPSTreeWidgetItem* treeItem = new EPSTreeWidgetItem(ui->exoplanetsTreeWidget);
 			treeItem->setText(EPSExoplanetName, QString("%1 %2").arg(trans.qtranslate(map["designation"].toString().trimmed()), epdata["planetName"].toString()).trimmed());
 			treeItem->setData(EPSExoplanetName, Qt::UserRole, map["designation"].toString());
@@ -246,7 +256,7 @@ void ExoplanetsDialog::fillExoplanetsTable()
 			treeItem->setText(EPSStarRadius, sradius);
 			treeItem->setToolTip(EPSStarRadius,  q_("Radius of star in solar radii"));
 			treeItem->setTextAlignment(EPSStarRadius,  Qt::AlignRight);
-			treeItem->setText(EPSExoplanetDetectionMethod, q_(dm));
+			treeItem->setText(EPSExoplanetDetectionMethod, dm);
 			treeItem->setToolTip(EPSExoplanetDetectionMethod,  q_("Detection method of exoplanet"));
 		}
 	}
@@ -273,7 +283,7 @@ void ExoplanetsDialog::selectCurrentExoplanet(const QModelIndex& modelIndex)
 void ExoplanetsDialog::setAboutHtml(void)
 {
 	QString html = "<html><head></head><body>";
-	html += "<h2>" + q_("Exoplanets Plug-in") + "</h2><table width=\"90%\">";
+	html += "<h2>" + q_("Exoplanets Plug-in") + "</h2><table class='layout' width=\"90%\">";
 	html += "<tr width=\"30%\"><td><strong>" + q_("Version") + ":</strong></td><td>" + EXOPLANETS_PLUGIN_VERSION + "</td></tr>";
 	html += "<tr><td><strong>" + q_("License") + ":</strong></td><td>" + EXOPLANETS_PLUGIN_LICENSE + "</td></tr>";
 	html += "<tr><td><strong>" + q_("Author") + ":</strong></td><td>Alexander Wolf</td></tr>";

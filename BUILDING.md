@@ -283,9 +283,9 @@ https://github.com/Stellarium/stellarium/releases
 Do this command in a terminal (if you prefer, you might use arK or some other graphical archive tool): 
 
 ```
-$ tar zxf stellarium-24.1.tar.gz
+$ tar zxf stellarium-24.2.tar.gz
 ```
-You should now have a directory `stellarium-24.1` with the source code in it.
+You should now have a directory `stellarium-24.2` with the source code in it.
 
 
 ### Clone project from GitHub
@@ -324,7 +324,7 @@ GitHub by web.
 
 #### Windows specifics
 
-On Windows save the file (`master.zip` or `stellarium-24.1.tar.gz`) to the `C:/Devel` directory as 
+On Windows save the file (`master.zip` or `stellarium-24.2.tar.gz`) to the `C:/Devel` directory as 
 example. You will need a decompression program installed in Windows, for example [7-Zip](http://www.7-zip.org/). 
 The root of the source tree will be `C:/Devel/stellarium` for simplicity.
 
@@ -403,6 +403,7 @@ List of supported parameters (passed as `-DPARAMETER=VALUE`):
 | ENABLE_RELEASE_BUILD               | bool   | OFF     | This option flags the build as an official release
 | ENABLE_TESTING                     | bool   | OFF     | Enable unit tests
 | ENABLE_QTWEBENGINE                 | bool   | ON      | Enable QtWebEngine module support if it installed
+| USE_BUNDLED_QTCOMPRESS             | bool   | ON      | Use bundled version of qtcompress
 | USE_PLUGIN_ANGLEMEASURE            | bool   | ON      | Enable building the Angle Measure plugin
 | USE_PLUGIN_ARCHAEOLINES            | bool   | ON      | Enable building the ArchaeoLines plugin
 | USE_PLUGIN_CALENDARS               | bool   | ON      | Enable building the Calendars plugin

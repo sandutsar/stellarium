@@ -170,8 +170,15 @@ void Exoplanets::init()
 		Exoplanet::markerTexture = StelApp::getInstance().getTextureManager().createTexture(":/Exoplanets/exoplanet.png");
 
 		// key bindings and other actions
-		addAction("actionShow_Exoplanets", N_("Exoplanets"), N_("Show exoplanets"), "showExoplanets", "Ctrl+Alt+E");
-		addAction("actionShow_Exoplanets_ConfigDialog", N_("Exoplanets"), N_("Show settings dialog"), exoplanetsConfigDialog, "visible", "Alt+E");
+		QString section = N_("Exoplanets");
+		addAction("actionShow_Exoplanets", section, N_("Show exoplanets"), "showExoplanets", "Ctrl+Alt+E");
+		addAction("actionShow_Exoplanets_ConfigDialog", section, N_("Show settings dialog"), exoplanetsConfigDialog, "visible", "Alt+E");
+		// no default hotkeys
+		addAction("actionShow_Exoplanets_Distribution", section, N_("Enable display of distribution for exoplanets"), "flagDisplayMode");
+		addAction("actionShow_Exoplanets_Timeline", section, N_("Enable timeline discovery of exoplanets"), "flagTimelineMode");
+		addAction("actionShow_Exoplanets_Habitable", section, N_("Enable display of the potential habitable exoplanets only"), "flagHabitableMode");
+		addAction("actionShow_Exoplanets_Designations", section, N_("Enable display of designations for exoplanets"), "flagShowExoplanetsDesignations");
+		addAction("actionShow_Exoplanets_Numbers", section, N_("Enable display number of exoplanets in the system"), "flagShowExoplanetsNumbers");
 
 		setFlagShowExoplanets(getEnableAtStartup());
 		setFlagShowExoplanetsButton(flagShowExoplanetsButton);
@@ -1034,49 +1041,47 @@ void Exoplanets::translations()
 {
 #if 0
 	// TRANSLATORS: Habitable zone
-	N_("Hot");
+	NC_("Hot", "Habitable zone");
 	// TRANSLATORS: Habitable zone
-	N_("Warm");
+	NC_("Warm", "Habitable zone");
 	// TRANSLATORS: Habitable zone
-	N_("Cold");
+	NC_("Cold", "Habitable zone");
 
-	// TRANSLATORS: Planet size
-	N_("Miniterran");
-	// TRANSLATORS: Planet size
-	N_("Subterran");
-	// TRANSLATORS: Planet size
-	N_("Terran");
-	// TRANSLATORS: Planet size
-	N_("Superterran");
-	// TRANSLATORS: Planet size
-	N_("Jovian");
-	// TRANSLATORS: Planet size
-	N_("Neptunian");
+	// TRANSLATORS: Exoplanet size
+	NC_("Miniterran", "Exoplanet size");
+	// TRANSLATORS: Exoplanet size
+	NC_("Subterran", "Exoplanet size");
+	// TRANSLATORS: Exoplanet size
+	NC_("Terran", "Exoplanet size");
+	// TRANSLATORS: Exoplanet size
+	NC_("Superterran", "Exoplanet size");
+	// TRANSLATORS: Exoplanet size
+	NC_("Jovian", "Exoplanet size");
+	// TRANSLATORS: Exoplanet size
+	NC_("Neptunian", "Exoplanet size");
 
 	// TRANSLATORS: Exoplanet detection method
-	N_("Primary Transit");
+	NC_("Astrometry", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method
-	N_("Microlensing");
+	NC_("Imaging", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method
-	N_("Radial Velocity");
+	NC_("Kinematic", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method
-	N_("Imaging");
+	NC_("Microlensing", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method
-	N_("Astrometry");
+	NC_("Other", "Exoplanet detection method");
+	// TRANSLATORS: Exoplanet detection method
+	NC_("Primary Transit", "Exoplanet detection method");	
+	// TRANSLATORS: Exoplanet detection method
+	NC_("Radial Velocity", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method. TTV=Transit Timing Variation
-	N_("TTV");
+	NC_("TTV", "Exoplanet detection method");
 	// TRANSLATORS: Exoplanet detection method
-	N_("Timing");
-	// TRANSLATORS: Exoplanet detection method
-	N_("Default");
-	// TRANSLATORS: Exoplanet detection method
-	N_("Secondary Transit");
-	// TRANSLATORS: Exoplanet detection method
-	N_("Disk Kinematics");
+	NC_("Timing", "Exoplanet detection method");
 
 	/* For copy/paste:
 	// TRANSLATORS:
-	N_("");
+	NC_("", "Exoplanet detection method");
 	*/
 
 #endif

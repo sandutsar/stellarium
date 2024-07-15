@@ -44,7 +44,7 @@ ENDIF()
 # Note: Use integer versions instead of strings for easier handling if required
 SET(STELLARIUM_MAJOR 24)
 # Number of the release (0 is used before first release)
-SET(STELLARIUM_MINOR 1)
+SET(STELLARIUM_MINOR 2)
 IF(STELLARIUM_RELEASE_BUILD)
     ADD_DEFINITIONS(-DSTELLARIUM_RELEASE_BUILD)
     SET(CMAKE_BUILD_TYPE Release)
@@ -805,6 +805,14 @@ ELSE()
      MESSAGE(STATUS "Using system-provided zlib at ${ZLIB_LIBRARIES}")
 ENDIF()
 
+SET(USE_BUNDLED_QTCOMPRESS 1 CACHE BOOL "Use bundled version of qtcompress")
+IF(USE_BUNDLED_QTCOMPRESS)
+     ADD_DEFINITIONS(-DUSE_BUNDLED_QTCOMPRESS)
+     MESSAGE(STATUS "Using bundled qtcompress at ${CMAKE_SOURCE_DIR}/src/external/qtcompress")
+ELSE()
+     MESSAGE(STATUS "Using Qt-provided qtcompress")
+ENDIF()
+
 IF(ENABLE_XLSX)
      # TODO: switch to something like vcpkg or conan, and plain find_package,
      # without the fallback of cmake downloading the dep itself.
@@ -819,8 +827,8 @@ IF(ENABLE_XLSX)
          MESSAGE(STATUS "Using system-provided QXlsx ${QXlsx_VERSION}")
      ELSE()
          CPMAddPackage(NAME QXlsxQt${QT_VERSION_MAJOR}
-             URL https://github.com/QtExcel/QXlsx/archive/refs/tags/v1.4.7.tar.gz
-             URL_HASH SHA256=6f2de3e3bcfd09b7be0f9ad06c363cfe29a7a4c14280b36a91d8968f54be796a
+             URL https://github.com/QtExcel/QXlsx/archive/refs/tags/v1.4.8.tar.gz
+             URL_HASH SHA256=5b2a5aad08f07e6b099d934c4c4f75bcd83a0421538aec1e8582d8c8596b0956
              EXCLUDE_FROM_ALL ON
              SOURCE_SUBDIR QXlsx)
      ENDIF()
